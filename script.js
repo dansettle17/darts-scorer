@@ -1,4 +1,5 @@
 let scores = { 1: 501, 2: 501 };
+let dartCounts = { 1: 0, 2: 0 };
 let currentPlayer = 1;
 let isGameOver = false;
 
@@ -8,36 +9,40 @@ function submitTurn() {
     const input = document.getElementById('turn-score');
     const turnPoints = parseInt(input.value);
 
-    // Validation
     if (isNaN(turnPoints) || turnPoints < 0 || turnPoints > 180) {
         alert("Enter a valid score between 0 and 180.");
         return;
     }
 
+    // Increment dart count for current player by 3 darts
+    dartCounts[currentPlayer] += 3;
+
     const currentScore = scores[currentPlayer];
     let nextScore = currentScore - turnPoints;
-    let logMessage = `Player ${currentPlayer} threw a ${turnPoints}`;
+    let scoreDisplay = turnPoints.toString();
+    let leftDisplay = "";
+    let isBust = false;
 
     if (nextScore === 0) {
         scores[currentPlayer] = 0;
-        logMessage += ` -> Checked out! 🎉`;
-        updateDOM();
-        logTurn(logMessage);
+        leftDisplay = "🎉 0";
+        appendRow(currentPlayer, dartCounts[currentPlayer], scoreDisplay, leftDisplay, isBust);
         endGame();
         input.value = '';
         return;
     } else if (nextScore < 2) {
-        // Bust rule (must finish on a double, meaning score can't go to 1 or below 0)
-        logMessage += ` -> BUST!`;
+        isBust = true;
+        scoreDisplay = "BUST";
+        leftDisplay = currentScore;
         alert(`Player ${currentPlayer} Bust!`);
     } else {
         scores[currentPlayer] = nextScore;
-        logMessage += ` (Left: ${nextScore})`;
+        leftDisplay = nextScore;
     }
 
-    logTurn(logMessage);
+    appendRow(currentPlayer, dartCounts[currentPlayer], scoreDisplay, leftDisplay, isBust);
     
-    // Switch Players
+    // Switch active turns
     currentPlayer = currentPlayer === 1 ? 2 : 1;
     
     updateDOM();
@@ -45,12 +50,28 @@ function submitTurn() {
     input.focus();
 }
 
-function logTurn(message) {
-    const historyList = document.getElementById('score-history');
-    const newEntry = document.createElement('li');
-    newEntry.textContent = message;
-    // Insert newest hits at the top of the history list
-    historyList.insertBefore(newEntry, historyList.firstChild);
+function appendRow(playerNum, totalDarts, scoreThrown, scoreLeft, isBust) {
+    const tableBody = document.getElementById(`p${playerNum}-history`);
+    const row = document.createElement('tr');
+
+    const dartsCell = document.createElement('td');
+    dartsCell.textContent = totalDarts;
+
+    const scoreCell = document.createElement('td');
+    scoreCell.textContent = scoreThrown;
+    if (isBust) {
+        scoreCell.classList.add('text-bust');
+    }
+
+    const leftCell = document.createElement('td');
+    leftCell.textContent = scoreLeft;
+
+    row.appendChild(dartsCell);
+    row.appendChild(scoreCell);
+    row.appendChild(leftCell);
+
+    // This inserts the newest throws at the very top of the table logs
+    tableBody.insertBefore(row, tableBody.firstChild);
 }
 
 function updateDOM() {
@@ -59,8 +80,6 @@ function updateDOM() {
     
     if (!isGameOver) {
         document.getElementById('turn-display').innerText = `Player ${currentPlayer}'s Turn`;
-        
-        // Update visual highlighting
         document.getElementById('p1-card').classList.toggle('active', currentPlayer === 1);
         document.getElementById('p2-card').classList.toggle('active', currentPlayer === 2);
     }
@@ -75,8 +94,11 @@ function endGame() {
 
 function resetGame() {
     scores = { 1: 501, 2: 501 };
+    dartCounts = { 1: 0, 2: 0 };
     currentPlayer = 1;
     isGameOver = false;
-    document.getElementById('score-history').innerHTML = '';
+    document.getElementById('p1-history').innerHTML = '';
+    document.getElementById('p2-history').innerHTML = '';
     updateDOM();
 }
+
