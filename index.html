@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darts Scorer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Darts Scorer (501)</h1>
+        <div class="scoreboard">
+            <h2>Remaining Score: <span id="score">501</span></h2>
+        </div>
+        <input type="number" id="turn-score" placeholder="Enter 3-dart total" min="0" max="180">
+        <button onclick="subtractScore()">Submit Turn</button>
+        <button onclick="resetGame()" class="btn-reset">Reset</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
